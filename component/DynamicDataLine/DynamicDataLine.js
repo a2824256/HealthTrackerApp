@@ -1,37 +1,35 @@
-import React, {Component} from 'react';
-import {View, WebView, StyleSheet, Platform} from 'react-native';
-import renderChart from "native-echarts/src/components/Echarts/renderChart";
+import React from 'react';
+import {
+    View,
+    WebView,
+} from 'react-native';
+import renderChart from "./renderChart";
 
-export default class NavBar extends Component {
+export default class DynamicDataLine extends React.Component {
+
+    constructor(props) {
+        super(props);
+    }
+
+    sendMessage() {
+        this.refs.webview.postMessage(pr);
+    }
+
     render() {
+        let xName = this.props.xName ? this.props.xName : "undefine";
+        let yName = this.props.yName ? this.props.yName : "undefine";
         return (
-            <View style={{flex: 1, height: this.props.height || 400,}}>
-                <WebView
-                    ref="chart"
-                    scrollEnabled = {false}
-                    injectedJavaScript = {renderChart(this.props)}
-                    style={{
-                        height: this.props.height || 400,
-                        backgroundColor: this.props.backgroundColor || 'transparent'
-                    }}
-                    scalesPageToFit={false}
-                    source={require('./tpl.html')}
-                    onMessage={event => this.props.onPress ? this.props.onPress(JSON.parse(event.nativeEvent.data)) : null}
-                />
+            <View style={{flex: 1}}>
+                <View style={{width: 500, height: 300}}>
+                    <WebView
+                        scrollEnabled={false}
+                        ref={'webview'}
+                        injectedJavaScript={renderChart(xName, yName)}
+                        source={require('./tpl.html')}
+                        style={{width: 375, height: 220}}
+                    />
+                </View>
             </View>
         )
     }
 }
-
-
-const styles = StyleSheet.create({
-    Bar: {
-        height: Platform.OS == 'ios' ? 64 : 44,
-        paddingTop: Platform.OS == 'ios' ? 14 : 0,
-        backgroundColor: '#ff6400',
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
-});
-
-module.exports = NavBar;

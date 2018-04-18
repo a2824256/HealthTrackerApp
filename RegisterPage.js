@@ -12,23 +12,28 @@ import {
 } from 'react-native';
 import NavBar from './component/NavBar';
 import Dimensions from 'Dimensions';
+
 const {width} = Dimensions.get('window');
 export default class RegisterPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            dev_id: 20180326,
-            token: 0,
-            port: '2345',
-            ip: '127.0.0.1',
+            account: null,
+            password: null,
+            dev_id: null,
+        }
+        this.regSuccess = this.regSuccess.bind(this);
+    }
+
+    regSuccess() {
+        if (this.state.account == null || this.state.password == null || this.state.dev_id == null) {
+            Alert.alert("Value cannot be null");
+        } else {
+            this.props.regSuccess(this.state.account, this.state.password, this.state.dev_id);
         }
     }
 
-    login(){
-        this.props.login();
-    }
-
-    render(){
+    render() {
         return (
             <ScrollView style={{flex: 1, backgroundColor: '#F5F5F5'}}>
                 <NavBar title={'Health Tracker'}/>
@@ -39,7 +44,7 @@ export default class RegisterPage extends Component {
                             autoCapitalize='none'
                             placeholder='Account'
                             textAlign='center'
-                            onChangeText={(ip) => this.setState({ip})}
+                            onChangeText={(account) => this.setState({account})}
                             underlineColorAndroid='transparent'
                         />
                         <View style={{height: 2}}/>
@@ -48,21 +53,21 @@ export default class RegisterPage extends Component {
                             placeholder='Password'
                             autoCapitalize='none'
                             textAlign='center'
-                            onChangeText={(port) => this.setState({port})}
+                            onChangeText={(password) => this.setState({password})}
                             underlineColorAndroid='transparent'
                         />
                         <View style={{height: 2}}/>
                         <TextInput
                             style={styles.TextInput}
-                            placeholder='请输入设备token'
+                            placeholder='Device ID'
                             autoCapitalize='none'
                             textAlign='center'
                             onChangeText={(dev_id) => this.setState({dev_id})}
                             underlineColorAndroid='transparent'
                         />
-                        <TouchableHighlight onPress={this.ws_connect} underlayColor="#52ABFF"
+                        <TouchableHighlight onPress={this.regSuccess} underlayColor="#52ABFF"
                                             style={styles.login_button}>
-                            <Text style={{color: '#fff'}}>注册</Text>
+                            <Text style={{color: '#fff'}}>Sign up</Text>
                         </TouchableHighlight>
                     </View>
                 </View>

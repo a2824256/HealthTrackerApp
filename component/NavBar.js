@@ -7,7 +7,7 @@ export default class NavBar extends Component {
             <View>
                 <View style={styles.Bar}>
                     <View style={{height: 20}}/>
-                    <Text style={{color:'#fff',fontSize:17}}>{this.props.title}</Text>
+                    <Text style={{color:'#fff'}}>{this.props.title}</Text>
                 </View>
                 <View style={{height:2,backgroundColor:'#DCDCDC'}}/>
             </View>

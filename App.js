@@ -14,16 +14,22 @@ import Echarts from 'native-echarts';
 import Dimensions from 'Dimensions';
 import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
-import ConnectPage from "./ConnectPage";
+import ConnectPage from './ConnectPage';
+import Menu from './component/Menu';
+import SideMenu from 'react-native-side-menu';
+import DynamicLine from './component/DynamicDataLine/DynamicDataLine';
+
 
 const {width} = Dimensions.get('window');
+let ws = null;
 export default class App extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            dev_id: 20180326,
-            token: 0,
+            account: null,
+            dev_id: null,
+            menu: false,
             loginState: 0, //0 connect, 1 register, 2 login, 3 main, 4 update data
             data: {
                 hr: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -37,6 +43,9 @@ export default class App extends Component {
         }
         this.ws_connect = this.ws_connect.bind(this);
         this.toSignUp = this.toSignUp.bind(this);
+        this.regSuccess = this.regSuccess.bind(this);
+        this.login = this.login.bind(this);
+        this.signOut = this.signOut.bind(this);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -46,8 +55,37 @@ export default class App extends Component {
         return false;
     }
 
-    toSignUp(){
+    login(account, password) {
+        let json = {
+            'type': 'websocket',
+            'action': 'login',
+            'account': account,
+            'password': password,
+        };
+        ws.send(JSON.stringify(json));
+    }
+
+    signOut() {
+        let json = {
+            'type': 'websocket',
+            'action': 'sign_out',
+        };
+        ws.send(JSON.stringify(json));
+    }
+
+    toSignUp() {
         this.setState({loginState: 1});
+    }
+
+    regSuccess(account, password, dev_id) {
+        let json = {
+            'type': 'websocket',
+            'action': 'register',
+            'dev_id': dev_id,
+            'account': account,
+            'password': password,
+        };
+        ws.send(JSON.stringify(json));
     }
 
     ws_connect(ip, port) {
@@ -57,32 +95,30 @@ export default class App extends Component {
         }
 
         const ws_url = 'ws://' + ip + ':' + port;
-        const ws = new WebSocket(ws_url);
+        ws = new WebSocket(ws_url);
 
         ws.onopen = () => {
             let token = {
-                'type':'websocket',
-                'action':'connect'
+                'type': 'websocket',
+                'action': 'connect'
             };
-            // token['user_id'] = this.state.token;
-            // token['dev_id'] = this.state.dev_id;
-            // Alert.alert(JSON.stringify(token));
             ws.send(JSON.stringify(token));
         };
 
         ws.onmessage = (e) => {
             let json_arr = JSON.parse(e.data);
-            switch(json_arr['state']){
+            switch (json_arr['state']) {
                 case 0:
-                    // Alert.alert("connect fail");
-                     break;
+                    this.setState({loginState: 0});
+                    break;
                 case 2:
                     this.setState({loginState: 2});
                     break;
                 case 3:
-                    this.setState({loginState: 3});
-                    this.setState({data: json_arr['data']});
+                    this.setState({loginState: 3, account: json_arr['account'], dev_id: json_arr['dev_id']});
                     break;
+                default:
+                    Alert.alert(json_arr['reason']);
             }
         };
 
@@ -91,7 +127,7 @@ export default class App extends Component {
         };
 
         ws.onclose = (e) => {
-            if(this.state.loginState!=0){
+            if (this.state.loginState != 0) {
                 this.setState({loginState: 0});
                 Alert.alert("Connect close");
             }
@@ -101,19 +137,21 @@ export default class App extends Component {
     render() {
         switch (this.state.loginState) {
             case 0:
-                return(
+                return (
                     <ConnectPage connect={this.ws_connect}/>
                 );
             case 1:
                 return (
-                    <RegisterPage/>
+                    <RegisterPage regSuccess={this.regSuccess}/>
                 );
             case 2:
                 return (
-                    <LoginPage toSignUp={this.toSignUp}/>
+                    <LoginPage login={this.login} toSignUp={this.toSignUp}/>
                 );
             case 3:
-                const hr_option = {
+                let menu = <Menu navigator={navigator} acc={this.state.account} devId={this.state.dev_id}
+                                 signout={this.signOut}/>;
+                let hr_option = {
                     tooltip: {
                         trigger: 'axis'
                     },
@@ -152,7 +190,7 @@ export default class App extends Component {
                         },
                     ]
                 };
-                const temp_option = {
+                let temp_option = {
                     tooltip: {
                         trigger: 'axis'
                     },
@@ -191,7 +229,7 @@ export default class App extends Component {
                         },
                     ]
                 };
-                const acc_option = {
+                let acc_option = {
                     tooltip: {
                         trigger: 'axis'
                     },
@@ -245,23 +283,27 @@ export default class App extends Component {
                     ]
                 };
                 return (
-                    <ScrollView style={styles.container}>
-                        <NavBar title={'Health Tracker'}/>
-                        <Echarts option={hr_option} height={300} width={width}/>
-                        <View style={styles.sensorTitle}><Text>tab 1 - Heart Rate</Text></View>
-                        <Echarts option={temp_option} height={300} width={width}/>
-                        <View style={styles.sensorTitle}><Text>tab 2 - Temperature</Text></View>
-                        <Echarts option={acc_option} height={300} width={width}/>
-                        <View style={styles.sensorTitle}><Text>tab 3 - Accelerated</Text></View>
-                    </ScrollView>
+                    <SideMenu menu={menu}>
+                        <ScrollView style={styles.container}>
+                            <NavBar title={'Health Tracker'}/>
+                            <Echarts option={hr_option} height={300} width={width}/>
+                            <View style={styles.sensorTitle}><Text>tab 1 - Heart Rate</Text></View>
+                            <Echarts option={temp_option} height={300} width={width}/>
+                            <View style={styles.sensorTitle}><Text>tab 2 - Temperature</Text></View>
+                            <Echarts option={acc_option} height={300} width={width}/>
+                            <View style={styles.sensorTitle}><Text>tab 3 - Accelerated</Text></View>
+                        </ScrollView>
+                    </SideMenu>
                 );
         }
     }
 }
 
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: "#F5F5F5",
     },
     content: {
         marginTop: 10,

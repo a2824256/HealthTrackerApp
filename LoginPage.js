@@ -11,23 +11,27 @@ import {
     TextInput,
 } from 'react-native';
 import NavBar from './component/NavBar';
-import Dimensions from 'Dimensions';
-const {width} = Dimensions.get('window');
+
 export default class LoginPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            dev_id: 20180326,
-            token: 0,
+            account: null,
+            password: null
         }
+        this.login = this.login.bind(this);
         this.toSignUp = this.toSignUp.bind(this);
     }
 
     login() {
-        this.props.login(this.state.ip,this.state.port);
+        if (this.state.account == null || this.state.password == null) {
+            Alert.alert("Value cannot be null");
+        }else{
+            this.props.login(this.state.account, this.state.password);
+        }
     }
 
-    toSignUp(){
+    toSignUp() {
         this.props.toSignUp();
     }
 
@@ -43,7 +47,7 @@ export default class LoginPage extends Component {
                             placeholder='Account'
                             autoCapitalize='none'
                             textAlign='center'
-                            onChangeText={(token) => this.setState({token})}
+                            onChangeText={(account) => this.setState({account})}
                             underlineColorAndroid='transparent'
                         />
                         <View style={{height: 2}}/>
@@ -53,7 +57,7 @@ export default class LoginPage extends Component {
                             placeholder='Password'
                             autoCapitalize='none'
                             textAlign='center'
-                            onChangeText={(dev_id) => this.setState({dev_id})}
+                            onChangeText={(password) => this.setState({password})}
                             underlineColorAndroid='transparent'
                         />
                         <TouchableHighlight onPress={this.login} underlayColor="#52ABFF"
