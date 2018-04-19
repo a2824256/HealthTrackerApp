@@ -128,10 +128,9 @@ export default class App extends Component {
                     this.setState({loginState: 3, account: json_arr['account'], dev_id: json_arr['dev_id']});
                     break;
                 case 4:
-                    Alert.alert(json_arr['hr']);
-                    // this.c1.sendMessage(json_arr['hr']);
-                    // this.c2.sendMessage(json_arr['tm']);
-                    // this.c3.sendMessage(JSON.stringify(json_arr['ac']));
+                    this.c1.sendMessage(json_arr['data']['hr']);
+                    this.c2.sendMessage(json_arr['data']['tm']);
+                    this.c3.sendMessage(json_arr['data']['ac']);
                     break;
                 default:
                     if (json_arr['reason'] == null) {

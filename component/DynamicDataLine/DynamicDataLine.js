@@ -21,8 +21,7 @@ export default class DynamicDataLine extends Component {
 
 
     sendMessage(data) {
-        Alert.alert(data);
-        // this.refs.webview.postMessage(data);
+        this.refs.webview.postMessage(data);
     }
 
     render() {
