@@ -31,6 +31,7 @@ export default class App extends Component {
             dev_id: null,
             menu: false,
             loginState: 0, //0 connect, 1 register, 2 login, 3 main, 4 update data
+            walkCount: 0
         }
         this.ws_connect = this.ws_connect.bind(this);
         this.toSignUp = this.toSignUp.bind(this);
@@ -128,6 +129,9 @@ export default class App extends Component {
                     this.setState({loginState: 3, account: json_arr['account'], dev_id: json_arr['dev_id']});
                     break;
                 case 4:
+                    let sum = Math.sqrt(json_arr['data']['ac'][0] * json_arr['data']['ac'][0] + json_arr['data']['ac'][1] * json_arr['data']['ac'][1] + json_arr['data']['ac'][2] * json_arr['data']['ac'][2]);
+                    if (sum > 1.552188)
+                        this.setState({walkCount: this.state.walkCount + 1});
                     this.c1.sendMessage(json_arr['data']['hr']);
                     this.c2.sendMessage(json_arr['data']['tm']);
                     this.c3.sendMessage(json_arr['data']['ac']);
@@ -180,7 +184,8 @@ export default class App extends Component {
                             <TempLine xName={"time"} yName={"value"} retToFat={this.onC2}/>
                             <View style={styles.sensorTitle}><Text>tab 2 - Temperature</Text></View>
                             <Dtl xName={"time"} yName={"value"} retToFat={this.onC3}/>
-                            <View style={styles.sensorTitle}><Text>tab 3 - Accelerated</Text></View>
+                            <View style={styles.sensorTitle}><Text>tab 3 - Accelerated, step
+                                number:{this.state.walkCount}</Text></View>
                         </ScrollView>
                     </SideMenu>
                 );
