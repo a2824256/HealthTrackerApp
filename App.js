@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 
 import NavBar from './component/NavBar';
-import Echarts from 'native-echarts';
 import Dimensions from 'Dimensions';
 import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
@@ -18,7 +17,8 @@ import ConnectPage from './ConnectPage';
 import Menu from './component/Menu';
 import SideMenu from 'react-native-side-menu';
 import DynamicLine from './component/DynamicDataLine/DynamicDataLine';
-
+import Dtl from './component/DynamicThreeLine/DynamicThreeLine';
+import TempLine from './component/TempLine/TempLine';
 
 const {width} = Dimensions.get('window');
 let ws = null;
@@ -31,22 +31,32 @@ export default class App extends Component {
             dev_id: null,
             menu: false,
             loginState: 0, //0 connect, 1 register, 2 login, 3 main, 4 update data
-            data: {
-                hr: [0, 0, 0, 0, 0, 0, 0, 0],
-                tm: [0, 0, 0, 0, 0, 0, 0, 0],
-                ac: {
-                    'x': [0, 0, 0, 0, 0, 0, 0, 0],
-                    'y': [0, 0, 0, 0, 0, 0, 0, 0],
-                    'z': [0, 0, 0, 0, 0, 0, 0, 0],
-                }
-            }
         }
         this.ws_connect = this.ws_connect.bind(this);
         this.toSignUp = this.toSignUp.bind(this);
         this.regSuccess = this.regSuccess.bind(this);
         this.login = this.login.bind(this);
         this.signOut = this.signOut.bind(this);
+        this.onC1 = this.onC1.bind(this);
+        this.onC2 = this.onC2.bind(this);
+        this.onC3 = this.onC3.bind(this);
+        this.c1 = null;
+        this.c2 = null;
+        this.c3 = null;
     }
+
+    onC1(ref) {
+        this.c1 = ref;
+    }
+
+    onC2(ref) {
+        this.c2 = ref;
+    }
+
+    onC3(ref) {
+        this.c3 = ref;
+    }
+
 
     shouldComponentUpdate(nextProps, nextState) {
         if (nextState != this.state) {
@@ -117,8 +127,18 @@ export default class App extends Component {
                 case 3:
                     this.setState({loginState: 3, account: json_arr['account'], dev_id: json_arr['dev_id']});
                     break;
+                case 4:
+                    Alert.alert(json_arr['hr']);
+                    // this.c1.sendMessage(json_arr['hr']);
+                    // this.c2.sendMessage(json_arr['tm']);
+                    // this.c3.sendMessage(JSON.stringify(json_arr['ac']));
+                    break;
                 default:
-                    Alert.alert(json_arr['reason']);
+                    if (json_arr['reason'] == null) {
+                        Alert.alert('reason null');
+                    } else {
+                        Alert.alert(json_arr['reason']);
+                    }
             }
         };
 
@@ -151,146 +171,16 @@ export default class App extends Component {
             case 3:
                 let menu = <Menu navigator={navigator} acc={this.state.account} devId={this.state.dev_id}
                                  signout={this.signOut}/>;
-                let hr_option = {
-                    tooltip: {
-                        trigger: 'axis'
-                    },
-                    toolbox: {
-                        show: true,
-                        showTitle: true,
-                        feature: {
-                            //show是否显示表格，readOnly是否只读
-                            dataView: {show: false, readOnly: false},
-                        }
-                    },
-                    xAxis: [
-                        {
-                            //就是一月份这个显示为一个线段，而不是数轴那种一个点点
-                            boundaryGap: true,
-                            type: 'category',
-                            name: '时间/s',
-                            data: ['1', '2', '3', '4', '5', '6', '7', '8']
-                        }
-                    ],
-                    yAxis: [
-                        {
-                            type: 'value',
-                            name: '心率'
-                        }
-                    ],
-                    //图形的颜色组
-                    color: ['rgb(249,159,94)'],
-                    //需要显示的图形名称，类型，以及数据设置
-                    series: [
-                        {
-                            name: '心率',
-                            //默认显
-                            type: 'line',
-                            data: this.state.data.hr
-                        },
-                    ]
-                };
-                let temp_option = {
-                    tooltip: {
-                        trigger: 'axis'
-                    },
-                    toolbox: {
-                        show: true,
-                        showTitle: true,
-                        feature: {
-                            //show是否显示表格，readOnly是否只读
-                            dataView: {show: false, readOnly: false},
-                        }
-                    },
-                    xAxis: [
-                        {
-                            //就是一月份这个显示为一个线段，而不是数轴那种一个点点
-                            boundaryGap: true,
-                            type: 'category',
-                            name: '时间/s',
-                            data: ['1', '2', '3', '4', '5', '6', '7', '8']
-                        }
-                    ],
-                    yAxis: [
-                        {
-                            type: 'value',
-                            name: '摄氏度'
-                        }
-                    ],
-                    //图形的颜色组
-                    color: ['rgb(220,20,60)'],
-                    //需要显示的图形名称，类型，以及数据设置
-                    series: [
-                        {
-                            name: '摄氏度',
-                            //默认显
-                            type: 'line',
-                            data: this.state.data.tm
-                        },
-                    ]
-                };
-                let acc_option = {
-                    tooltip: {
-                        trigger: 'axis'
-                    },
-                    legend: {
-                        data: ['x轴', 'y轴', 'z轴']
-                    },
-                    //各种表格
-                    toolbox: {
-                        show: true,
-                        showTitle: true,
-                        feature: {
-                            //show是否显示表格，readOnly是否只读
-                            dataView: {show: false, readOnly: false},
-                        }
-                    },
-                    xAxis: [
-                        {
-                            //就是一月份这个显示为一个线段，而不是数轴那种一个点点
-                            boundaryGap: true,
-                            type: 'category',
-                            name: '时间/s',
-                            data: ['1', '2', '3', '4', '5', '6', '7', '8']
-                        }
-                    ],
-                    yAxis: [
-                        {
-                            type: 'value',
-                            name: '速度值'
-                        }
-                    ],
-                    //图形的颜色组
-                    color: ['rgb(249,159,94)', 'rgb(220,20,60)', 'rgb(123,104,238)'],
-                    //需要显示的图形名称，类型，以及数据设置
-                    series: [
-                        {
-                            name: 'x轴',
-                            //默认显
-                            type: 'line',
-                            data: this.state.data.ac['x']
-                        },
-                        {
-                            name: 'y轴',
-                            type: 'line',
-                            data: this.state.data.ac['y']
-                        },
-                        {
-                            name: 'z轴',
-                            type: 'line',
-                            data: this.state.data.ac['z']
-                        }
-                    ]
-                };
+
                 return (
                     <SideMenu menu={menu}>
                         <ScrollView style={styles.container}>
                             <NavBar title={'Health Tracker'}/>
-                            <Echarts option={hr_option} height={300} width={width}/>
+                            <DynamicLine xName={"time"} yName={"value"} retToFat={this.onC1}/>
                             <View style={styles.sensorTitle}><Text>tab 1 - Heart Rate</Text></View>
-                            <Echarts option={temp_option} height={300} width={width}/>
+                            <TempLine xName={"time"} yName={"value"} retToFat={this.onC2}/>
                             <View style={styles.sensorTitle}><Text>tab 2 - Temperature</Text></View>
-                            <Echarts option={acc_option} height={300} width={width}/>
+                            <Dtl xName={"time"} yName={"value"} retToFat={this.onC3}/>
                             <View style={styles.sensorTitle}><Text>tab 3 - Accelerated</Text></View>
                         </ScrollView>
                     </SideMenu>
@@ -331,6 +221,7 @@ const styles = StyleSheet.create({
         height: 40,
         flex: 1,
         justifyContent: 'center',
+        marginTop: 20
         // alignItems: 'center',
         // backgroundColor:'#ef9196'
     },

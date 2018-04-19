@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {
     View,
     WebView,
-    Alert
 } from 'react-native';
 import renderChart from "./renderChart";
 import Dimensions from 'Dimensions';
@@ -21,8 +20,8 @@ export default class DynamicDataLine extends Component {
 
 
     sendMessage(data) {
-        Alert.alert(data);
-        // this.refs.webview.postMessage(data);
+        data = [data[0], data[1], data[2]];
+        this.refs.threeLine.postMessage(JSON.stringify(data));
     }
 
     render() {
@@ -33,7 +32,7 @@ export default class DynamicDataLine extends Component {
                 <View style={{width: width, height: 300}}>
                     <WebView
                         scrollEnabled={false}
-                        ref={"webview"}
+                        ref={"threeLine"}
                         scalesPageToFit={false}
                         injectedJavaScript={renderChart(xName, yName)}
                         source={require('./tpl.html')}

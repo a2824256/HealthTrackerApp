@@ -3,8 +3,8 @@ export default function renderChart(xName, yName) {
     var xName = "${xName}";
     var yName = "${yName}";
     var option = {
-        tooltip: {
-        trigger: 'axis'
+        legend: {
+        data:['x','y','z']
         },
         xAxis: {
             name: xName,
@@ -15,6 +15,9 @@ export default function renderChart(xName, yName) {
             boundaryGap: false,
             data: ['t1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9', 't10']
         },
+        tooltip: {
+        trigger: 'axis'
+        },
         yAxis: {
             name: yName,
             type: 'value',
@@ -23,11 +26,27 @@ export default function renderChart(xName, yName) {
                 show: false
             }
         },
-        series: [{
+        series: [
+        {
+            name: 'x',
             type: 'line',
-            showSymbol: false,
+            showSymbol: true,
             hoverAnimation: false,
-            data: data
+            data: data1
+        },
+        {
+            name: 'y',
+            type: 'line',
+            showSymbol: true,
+            hoverAnimation: false,
+            data: data2
+        },
+        {
+            name: 'z',
+            type: 'line',
+            showSymbol: true,
+            hoverAnimation: false,
+            data: data3
         }]
     };
     if (option && typeof option === "object") {

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta name="viewport" id="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Health Tracker</title>
+</head>
+<body style="margin: 0">
+<div id="container" style="height:300px;width: 100%"></div>
+<script type="text/javascript" src="echarts.min.js"></script>
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+    var data1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var data2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var data3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    document.addEventListener('message', function (e) {
+
+        data1.shift();
+        data1.push(JSON.parse(e.data)[0]);
+        data2.shift();
+        data2.push(JSON.parse(e.data)[1]);
+        data3.shift();
+        data3.push(JSON.parse(e.data)[2]);
+        myChart.setOption({
+            series: [
+                {
+                    name: 'x',
+                    data: data1
+                },
+                {
+                    name: 'y',
+                    data: data2
+                },
+                {
+                    name: 'z',
+                    data: data3
+                }]
+        });
+    });
+</script>
+</body>
+</html>
